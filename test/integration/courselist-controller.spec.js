@@ -140,4 +140,15 @@ describe('CourselistController', () => {
         })
     })
   })
+
+  describe('When I get a courseList (GET /course-lists)', () => {
+    it('should give me all the list', () => {
+      return request(app).get(url).then((res) => {
+        res.status.should.equal(200)
+        res.body.should.eql({
+          data: db.courseList
+        })
+      })
+    })
+  })
 })

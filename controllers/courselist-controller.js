@@ -6,6 +6,12 @@ const { find } = require('lodash')
 const db = require('../data/db')
 const courseListCollection = db.courseList
 
+router.get('/', (req, res, next) => {
+  res.json({
+    data: courseListCollection
+  })
+})
+
 router.post('/', (req, res, next) => {
   if (!req.body.name) {
     return next(new BadRequestError('VALIDATION', 'Missing name'))
