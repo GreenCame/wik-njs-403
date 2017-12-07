@@ -18,6 +18,23 @@ describe('CourselistItemController', () => {
   beforeEach(() => { courseListFixture.up() })
   afterEach(() => { courseListFixture.down() })
 
+  describe('test the url (GET /course-lists/:string/item)', () => {  
+    it('should reject with a 400 when fake name is given', () => {
+      return request(app)
+        .get(url('btc'))
+        .then((res) => {
+          res.status.should.equal(400)
+          
+          res.body.should.eql({
+            error: {
+              code: 'VALIDATION',
+              message: 'List name should be valid'
+            }
+          })
+        })
+    })
+  })
+
   describe('When I create a item for a courseListItem (POST /course-lists/:string/item)', () => {  
     it('should reject with a 400 when fake name is given', () => {
       return request(app)
@@ -114,6 +131,51 @@ describe('CourselistItemController', () => {
           expect(res.body.data).to.be.an('object')
           expect(res.body.data.items).to.be.an('array')
           res.body.data.items[0].name.should.equal(item)
+        })
+    })
+  })
+
+  describe('I can get put a flag buy (PATCH /course-lists/:string/item)', () => {
+    it('should change flagged item', () => {
+      return request(app)
+        .patch(url('Ma_liste'))
+        .send({ item: 'not_exit', isBuy : true})
+        .then((res) => {
+          res.status.should.equal(400)
+          
+          res.body.should.eql({
+            error: {
+              code: 'VALIDATION',
+              message: 'Item name should be valid'
+            }
+          })
+        })
+    })
+
+
+    it('should change flagged item', () => {
+      return request(app)
+        .patch(url('Ma_liste'))
+        .send({ item, isBuy : true})
+        .then((res) => {
+          res.status.should.equal(200)
+          expect(res.body.data).to.be.an('object')
+          res.body.data.item.name.should.equal(item)
+          res.body.data.item.isBuy.should.be.true
+          res.body.data.list.should.equal('Ma liste')
+        })
+    })
+
+    it('should change unflagged item', () => {
+      return request(app)
+        .patch(url('Ma_liste'))
+        .send({ item, isBuy : false})
+        .then((res) => {
+          res.status.should.equal(200)
+          expect(res.body.data).to.be.an('object')
+          res.body.data.item.name.should.equal(item)
+          res.body.data.item.isBuy.should.be.false
+          res.body.data.list.should.equal('Ma liste')
         })
     })
   })

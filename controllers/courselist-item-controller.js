@@ -64,4 +64,27 @@ router.post('/', (req, res, next) => {
     })
 })
 
+router.patch('/', (req, res, next) => {
+    if (!req.body.item) {
+        return next(new BadRequestError('VALIDATION', 'Missing name for the item'))
+    }
+
+    let current_item = find(res.list.items, { name : req.body.item });
+    if (!current_item) {
+        return next(new BadRequestError('VALIDATION', 'Item name should be valid'))
+    }
+
+    remove(res.list.items, current_item);
+    current_item.isBuy = req.body.isBuy 
+
+    courseListCollection[res.list.id - 1].items = [ ...res.list.items, current_item];
+
+    res.json({
+        data : { 
+            list : res.list.name,
+            item : current_item
+        }
+    })
+})
+
 module.exports = router
