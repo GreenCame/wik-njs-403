@@ -2,7 +2,7 @@ const { courseList } = require('../../data/db')
 
 mockData = [
   { id: 1, name: 'Toto' },
-  { id: 2, name: 'Ma liste' }
+  { id: 2, name: 'Ma liste', items: [{ name: "Pomme de terre" }] }
 ]
 
 module.exports = {
