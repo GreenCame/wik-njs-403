@@ -106,7 +106,7 @@ describe('CourselistItemController', () => {
           expect(res.body.data).to.be.an('object')
           res.body.data.name.should.equal(item)
 
-          const result = find(db.courseList, { name: list } )
+          const result = find(db.courseList, { name: 'Ma liste' } )
           result.items.should.not.be.empty
           result.items[0].should.eql({
             name : item, 
@@ -117,13 +117,22 @@ describe('CourselistItemController', () => {
   })
   
   describe('When I get a courseList (GET /course-lists)', () => {
-    xit('should give me all item in list', () => {
-      return request(app).get(url).then((res) => {
-        res.status.should.equal(200)
-        res.body.should.eql({
-          data: db.courseList
+    it('should give me all items in list', () => {
+      return request(app)
+        .get(url)
+        .send({ list: 'Ma liste' })
+        .then((res) => {
+          res.status.should.equal(200)
+          expect(res.body.data).to.be.an('object')
+          expect(res.body.data.items).to.be.an('array')
+          res.body.data.items[0].name.should.equal(item)
+
+          const result = find(db.courseList, { name: 'Ma liste' } )
+          result.items.should.not.be.empty
+          result.items[0].should.eql({
+            name : item
+          })
         })
-      })
     })
   })
 })

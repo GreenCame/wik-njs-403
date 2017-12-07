@@ -25,9 +25,12 @@ router.use((req, res, next) => {
 
 router.get('/', (req, res, next) => {
     const result = find(courseListCollection, { name : req.body.list })
+    console.log(result)
   
     res.json({
-      data: result.items
+      data: {
+          items: result.items
+      }
     })
 })
 
