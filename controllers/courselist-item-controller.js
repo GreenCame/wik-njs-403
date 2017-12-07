@@ -8,57 +8,59 @@ const courseListCollection = db.courseList
 
 //test if the list exist or not
 router.use((req, res, next) => {
-    if (!req.body.list) {
-        return next(new BadRequestError('VALIDATION', 'Missing name of the list'))
+    if (!req.baseUrl) {
+        return next(new BadRequestError('VALIDATION', 'Should never happened'))
     }
-
-    const name = req.body.list
     
+    const name = req.baseUrl.replace('/course-lists/', '').replace('/items', '').replace('_', ' ');
+
     // Check for name
     const result = find(courseListCollection, { name })
     if (!result) {
         return next(new BadRequestError('VALIDATION', 'List name should be valid'))
     }
 
+    res.list = result
+
     next();
 })
 
 router.get('/', (req, res, next) => {
-    const result = find(courseListCollection, { name : req.body.list })
-    console.log(result)
-  
     res.json({
       data: {
-          items: result.items
+          list : res.list.name,
+          items : res.list.items
       }
     })
 })
 
 router.post('/', (req, res, next) => {
-    const result = find(courseListCollection, { name : req.body.list })
-
     if (!req.body.item) {
         return next(new BadRequestError('VALIDATION', 'Missing name for the item'))
     }
 
-    let items = courseListCollection[result.id - 1].items || []
+    let items = courseListCollection[res.list.id - 1].items || []
     let current_item = find(items, { name : req.body.item });
+    let newItem = {};
 
     if(current_item){
         //change quantity
         remove(items, current_item);
-        items = [ ...items, { name : current_item.name, quantity: (current_item.quantity || 1) + 1 }];
+        newItem = { name : current_item.name, quantity: (current_item.quantity || 1) + 1 }
+
     } else {
-        let newItem = { name : req.body.item };
+        newItem = { name : req.body.item };
         if(req.body.quantity) newItem.quantity = req.body.quantity;
         
-        items = [ ...items, newItem];
     }
 
-    courseListCollection[result.id - 1].items = [ ...items ];
+    courseListCollection[res.list.id - 1].items = [ ...items, newItem];
 
     res.json({
-        data: find(courseListCollection[result.id - 1].items, { name : req.body.item })
+        data : { 
+            list : res.list.name,
+            item : newItem
+        }
     })
 })
 

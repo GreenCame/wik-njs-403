@@ -15,7 +15,7 @@ app.use(bodyParser.json())
 //   req.send('OK')
 // })
 
-app.use('/course-lists/items', courselistItemRouter)
+app.use('/course-lists/:string/items', courselistItemRouter)
 app.use('/course-lists', courselistRouter)
 
 app.use((req, res, next) => {;

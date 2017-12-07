@@ -8,8 +8,8 @@ const { find } = require('lodash')
 
 const db = require('../../data/db')
 const app = require('../../app')
-const url = '/course-lists/items';
-const list = "Toto";
+const url = (list) => '/course-lists/'+list+'/items';
+const list_toto = "Toto";
 const item = 'Pomme de terre';
 
 const courseListFixture = require('../fixtures/courseList')
@@ -18,23 +18,10 @@ describe('CourselistItemController', () => {
   beforeEach(() => { courseListFixture.up() })
   afterEach(() => { courseListFixture.down() })
 
-  describe('When I create a item for a courseList (POST /course-lists)', () => {
-    it('should reject with a 400 when no list name is given', () => {
-      return request(app).post(url).then((res) => {
-        res.status.should.equal(400)
-        res.body.should.eql({
-          error: {
-            code: 'VALIDATION',
-            message: 'Missing name of the list'
-          }
-        })
-      })
-    })
-
+  describe('When I create a item for a courseListItem (POST /course-lists/:string/item)', () => {  
     it('should reject with a 400 when fake name is given', () => {
       return request(app)
-        .post(url)
-        .send({ list : 'btc' })
+        .post(url('btc'))
         .then((res) => {
           res.status.should.equal(400)
           
@@ -49,8 +36,7 @@ describe('CourselistItemController', () => {
 
     it('should reject when no item name is given', () => {
       return request(app)
-        .post(url)
-        .send({ list })
+        .post(url(list_toto))
         .then((res) => {
           res.status.should.equal(400)
           res.body.should.eql({
@@ -64,14 +50,15 @@ describe('CourselistItemController', () => {
 
     it('should succesfuly create a item for the courseList', () => {
       return request(app)
-        .post(url)
-        .send({ list, item })
+        .post(url(list_toto))
+        .send({ item })
         .then((res) => {
           res.status.should.equal(200)
           expect(res.body.data).to.be.an('object')
-          res.body.data.name.should.equal(item)
+          res.body.data.item.name.should.equal(item)
+          res.body.data.list.should.equal(list_toto)
 
-          const result = find(db.courseList, { name: list } )
+          const result = find(db.courseList, { name: res.body.data.list } )
           result.items.should.not.be.empty
           result.items[0].should.eql({
             name : item 
@@ -81,14 +68,15 @@ describe('CourselistItemController', () => {
 
     it('should succesfuly create a item with quantity of 2 for the courseList', () => {
       return request(app)
-        .post(url)
-        .send({ list, item, quantity : 2 })
+        .post(url(list_toto))
+        .send({ item, quantity : 2 })
         .then((res) => {
           res.status.should.equal(200)
           expect(res.body.data).to.be.an('object')
-          res.body.data.name.should.equal(item)
+          res.body.data.item.name.should.equal(item)
+          res.body.data.list.should.equal(list_toto)
 
-          const result = find(db.courseList, { name: list } )
+          const result = find(db.courseList, { name: res.body.data.list } )
           result.items.should.not.be.empty
           result.items[0].should.eql({
             name : item, 
@@ -99,14 +87,15 @@ describe('CourselistItemController', () => {
 
     it('should succesfuly create a item with the same name = quantity * 2', () => {
       return request(app)
-        .post(url)
-        .send({ list: 'Ma liste', item })
+        .post(url('Ma_liste'))
+        .send({ item })
         .then((res) => {
           res.status.should.equal(200)
           expect(res.body.data).to.be.an('object')
-          res.body.data.name.should.equal(item)
+          res.body.data.item.name.should.equal(item)
+          res.body.data.list.should.equal('Ma liste')
 
-          const result = find(db.courseList, { name: 'Ma liste' } )
+          const result = find(db.courseList, { name: res.body.data.list } )
           result.items.should.not.be.empty
           result.items[0].should.eql({
             name : item, 
@@ -116,22 +105,15 @@ describe('CourselistItemController', () => {
     })
   })
   
-  describe('When I get a courseList (GET /course-lists)', () => {
+  describe('When I get a courseListItem (GET /course-lists/:string/item)', () => {
     it('should give me all items in list', () => {
       return request(app)
-        .get(url)
-        .send({ list: 'Ma liste' })
+        .get(url('Ma_liste'))
         .then((res) => {
           res.status.should.equal(200)
           expect(res.body.data).to.be.an('object')
           expect(res.body.data.items).to.be.an('array')
           res.body.data.items[0].name.should.equal(item)
-
-          const result = find(db.courseList, { name: 'Ma liste' } )
-          result.items.should.not.be.empty
-          result.items[0].should.eql({
-            name : item
-          })
         })
     })
   })
