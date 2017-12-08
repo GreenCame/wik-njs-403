@@ -8,10 +8,6 @@ const courseListCollection = db.courseList
 
 //test if the list exist or not
 router.use((req, res, next) => {
-    if (!req.baseUrl) {
-        return next(new BadRequestError('VALIDATION', 'Should never happened'))
-    }
-    
     const name = req.baseUrl.replace('/course-lists/', '').replace('/items', '').replace('_', ' ');
 
     // Check for name

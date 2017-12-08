@@ -19,6 +19,13 @@ describe('Util', function() {
 
             return expect(uuid).to.not.equal(uuid2);
         });
+
+        it('test the last generation', function() {
+            var uuid = generate.oldUUID();
+
+            expect(uuid).to.have.length(10);
+            expect(uuid).to.not.equal('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+        });
     });
 
 });

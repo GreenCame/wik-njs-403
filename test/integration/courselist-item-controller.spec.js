@@ -136,6 +136,20 @@ describe('CourselistItemController', () => {
   })
 
   describe('I can get put a flag buy (PATCH /course-lists/:string/item)', () => {
+    it('should reject when no item name is given', () => {
+      return request(app)
+        .patch(url(list_toto))
+        .then((res) => {
+          res.status.should.equal(400)
+          res.body.should.eql({
+            error: {
+              code: 'VALIDATION',
+              message: 'Missing name for the item'
+            }
+          })
+      })
+    })
+
     it('should change flagged item', () => {
       return request(app)
         .patch(url('Ma_liste'))
