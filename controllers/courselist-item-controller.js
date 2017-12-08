@@ -39,27 +39,26 @@ router.post('/', (req, res, next) => {
         return next(new BadRequestError('VALIDATION', 'Missing name for the item'))
     }
 
-    let items = courseListCollection[res.list.id - 1].items || []
+    let items = res.list.items || []
     let current_item = find(items, { name : req.body.item });
-    let newItem = {};
 
     if(current_item){
         //change quantity
         remove(items, current_item);
-        newItem = { name : current_item.name, quantity: (current_item.quantity || 1) + 1 }
+        current_item.quantity = (current_item.quantity || 1) + 1
 
     } else {
-        newItem = { name : req.body.item };
-        if(req.body.quantity) newItem.quantity = req.body.quantity;
+        current_item = { name : req.body.item };
+        if(req.body.quantity) current_item.quantity = req.body.quantity;
         
     }
 
-    courseListCollection[res.list.id - 1].items = [ ...items, newItem];
+    courseListCollection[res.list.id - 1].items = [ current_item, ...items];
 
     res.json({
         data : { 
             list : res.list.name,
-            item : newItem
+            item : current_item
         }
     })
 })
