@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const BadRequestError = require('../errors/bad-request')
 const { find } = require('lodash')
+const generate = require('./util/generate')
 
 const db = require('../data/db')
 const courseListCollection = db.courseList
@@ -26,7 +27,7 @@ router.post('/', (req, res, next) => {
   }
 
   const newCourseList = {
-    id: courseListCollection.length + 1,
+    id: courseListCollection.length + 1,// uuid : generate.UUID(),
     name
   }
 
